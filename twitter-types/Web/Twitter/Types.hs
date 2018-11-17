@@ -33,6 +33,7 @@ module Web.Twitter.Types
        , Contributor(..)
        , UploadedMedia (..)
        , ImageSizeType (..)
+       , ExtendedTweet (..)
        , checkError
        , twitterTimeFormat
        )
