@@ -127,6 +127,7 @@ data Status = Status
     , statusCurrentUserRetweet :: Maybe StatusId
     , statusEntities :: Maybe Entities
     , statusExtendedEntities :: Maybe Entities
+    , statusExtendedTweet :: Maybe ExtendedTweet
     , statusFavoriteCount :: Integer
     , statusFavorited :: Maybe Bool
     , statusFilterLevel :: Maybe Text
@@ -160,6 +161,7 @@ instance FromJSON Status where
                <*> ((o .: "current_user_retweet" >>= (.: "id")) <|> return Nothing)
                <*> o .:? "entities"
                <*> o .:? "extended_entities"
+               <*> o .:? "extended_tweet"
                <*> o .:? "favorite_count" .!= 0
                <*> o .:? "favorited"
                <*> o .:? "filter_level"
@@ -194,6 +196,7 @@ instance ToJSON Status where
                                                                       ]
                                , "entities"                 .= statusEntities
                                , "extended_entities"        .= statusExtendedEntities
+                               , "extended_tweet"           .= statusExtendedTweet
                                , "favorite_count"           .= statusFavoriteCount
                                , "favorited"                .= statusFavorited
                                , "filter_level"             .= statusFilterLevel
@@ -913,3 +916,21 @@ instance ToJSON UploadedMedia where
                                       , "size"      .= uploadedMediaSize
                                       , "image"     .= uploadedMediaImage
                                       ]
+
+data ExtendedTweet = ExtendedTweet
+    { extendedTweetFullText :: Text
+    , extendedTweetDisplayTextRange :: [Integer]
+    , extendedTweetEntities :: Maybe Entities
+    } deriving (Show, Eq, Data, Typeable, Generic)
+
+instance FromJSON ExtendedTweet where
+    parseJSON (Object o) = 
+        ExtendedTweet <$> o .: "full_text"
+                      <*> o .: "display_text_range"
+                      <*> o .: "entities"
+    parseJSON v = fail $ "unknown value: " ++ show v
+
+instance ToJSON ExtendedTweet where
+    toJSON ExtendedTweet{..} = object [ "full_text"             .= extendedTweetFullText
+                                      , "display_text_range"    .= extendedTweetDisplayTextRange
+                                      , "entities"              .= extendedTweetEntities]
